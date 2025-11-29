@@ -43,6 +43,20 @@ st.markdown("""
     .floating {
         animation: float 3s ease-in-out infinite;
     }
+    
+    .nav-button {
+        background: rgba(255,255,255,0.9);
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 0.5rem;
+        border: none;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-button:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -122,23 +136,32 @@ with col2:
     </div>
     """, unsafe_allow_html=True)
 
-# NAVIGATION TO SOLUTIONS
+# NAVIGATION TO SOLUTIONS - FIXED
 st.markdown("## 🚀 EXPLORE OUR REVOLUTIONARY SOLUTIONS")
 
-solutions = [
-    ("🏠 Smart Dashboard", "Real-time home intelligence"),
-    ("⚡ Live Orchestrator", "Watch AI coordinate your home"),
-    ("🇦🇪 UAE Intelligence", "Cultural & climate adaptation"),
-    ("🏗️ Digital Energy Twin", "3D home simulation"),
-    ("💰 Bill Shock Shield", "Predict & prevent surprises"),
-    ("🚀 Competition Ready", "Why we'll win")
-]
+# Create navigation buttons that work with Streamlit's auto-page detection
+col1, col2, col3 = st.columns(3)
 
-cols = st.columns(3)
-for i, (title, desc) in enumerate(solutions):
-    with cols[i % 3]:
-        if st.button(f"**{title}**\n\n{desc}", use_container_width=True, key=f"nav_{i}"):
-            st.switch_page(f"pages/{i+1}_🏠_Dashboard.py" if i == 0 else f"pages/{i+1}_{title.replace(' ', '_')}.py")
+with col1:
+    if st.button("**🏠 Smart Dashboard**\n\nReal-time home intelligence", use_container_width=True):
+        st.switch_page("pages/1_🏠_Dashboard.py")
+    
+    if st.button("**⚡ Live Orchestrator**\n\nWatch AI coordinate your home", use_container_width=True):
+        st.switch_page("pages/2_⚡_Live_Orchestrator.py")
+
+with col2:
+    if st.button("**🇦🇪 UAE Intelligence**\n\nCultural & climate adaptation", use_container_width=True):
+        st.switch_page("pages/3_🇦🇪_UAE_Intelligence.py")
+    
+    if st.button("**🏗️ Digital Twin**\n\n3D home simulation", use_container_width=True):
+        st.switch_page("pages/4_🏗️_Digital_Twin.py")
+
+with col3:
+    if st.button("**💰 Bill Shield**\n\nPredict & prevent surprises", use_container_width=True):
+        st.switch_page("pages/5_💰_Bill_Shield.py")
+    
+    if st.button("**🚀 Competition Ready**\n\nWhy we'll win", use_container_width=True):
+        st.switch_page("pages/6_🚀_Competition.py")
 
 # COMPETITION KILLER STATS
 st.markdown("## 📊 THE NUMBERS THAT WIN COMPETITIONS")
