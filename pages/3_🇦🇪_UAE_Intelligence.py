@@ -17,7 +17,7 @@ if 'user_profile' not in st.session_state:
         'appliances': ['AC', 'Refrigerator', 'Washing Machine']
     }
 
-# FIX: Add location if missing
+# Add location if missing
 if 'location' not in st.session_state.user_profile:
     st.session_state.user_profile['location'] = 'Dubai'
 
@@ -28,99 +28,6 @@ if 'uai_settings' not in st.session_state:
         'family_patterns': True,
         'desert_adaptation': True
     }
-
-# PREMIUM ANIMATED CSS FOR UAE INTELLIGENCE
-st.markdown("""
-<style>
-    .uae-card {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 20px;
-        padding: 2rem;
-        margin: 1rem 0;
-        transition: all 0.3s ease;
-        border-left: 4px solid;
-    }
-    
-    .uae-card.ramadan {
-        border-left-color: #8B5CF6;
-        background: rgba(139, 92, 246, 0.1);
-    }
-    
-    .uae-card.summer {
-        border-left-color: #F59E0B;
-        background: rgba(245, 158, 11, 0.1);
-    }
-    
-    .uae-card.family {
-        border-left-color: #22C55E;
-        background: rgba(34, 197, 94, 0.1);
-    }
-    
-    .uae-card.desert {
-        border-left-color: #EF4444;
-        background: rgba(239, 68, 68, 0.1);
-    }
-    
-    .uae-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-    }
-    
-    @keyframes slideInFromRight {
-        from {
-            opacity: 0;
-            transform: translateX(50px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-    
-    .slide-in-right {
-        animation: slideInFromRight 0.8s ease-out;
-    }
-    
-    .pattern-bar {
-        height: 8px;
-        background: linear-gradient(90deg, #22C55E, #3B82F6, #8B5CF6, #F59E0B);
-        border-radius: 4px;
-        margin: 0.5rem 0;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .pattern-bar::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-        animation: shimmer 2s infinite;
-    }
-    
-    @keyframes shimmer {
-        0% { left: -100%; }
-        100% { left: 100%; }
-    }
-    
-    .cultural-badge {
-        background: linear-gradient(45deg, #8B5CF6, #A855F7);
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-size: 0.9rem;
-        font-weight: bold;
-        display: inline-block;
-        margin: 0.25rem;
-        animation: pulse 2s infinite;
-    }
-</style>
-""", unsafe_allow_html=True)
 
 st.title("🇦🇪 UAE ENERGY INTELLIGENCE")
 st.markdown("### Cultural & Climate AI for Your Home")
@@ -156,7 +63,6 @@ with st.sidebar:
             help="Optimize for UAE's desert climate conditions"
         )
         
-        # FIX: Add location selector
         location = st.selectbox(
             "Your Emirate",
             ["Dubai", "Abu Dhabi", "Sharjah", "Ajman", "Ras Al Khaimah", "Fujairah", "Umm Al Quwain"],
@@ -172,7 +78,6 @@ with st.sidebar:
                 'family_patterns': family_patterns,
                 'desert_adaptation': desert_adaptation
             }
-            # FIX: Save location to user profile
             st.session_state.user_profile['location'] = location
             st.success("✅ UAE settings saved!")
             st.rerun()
@@ -186,32 +91,24 @@ with tab1:
     col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown(f"""
-        <div class="uae-card ramadan slide-in-right">
-            <h3>🕌 Your Ramadan Patterns</h3>
-            <p>Based on your <strong>family of {st.session_state.user_profile['family_size']}</strong> in <strong>{st.session_state.user_profile.get('location', 'Dubai')}</strong></p>
-            <div class="pattern-bar"></div>
+        # Ramadan patterns card
+        with st.container():
+            st.markdown("#### 🕌 Your Ramadan Patterns")
+            st.write(f"Based on your **family of {st.session_state.user_profile['family_size']}** in **{st.session_state.user_profile.get('location', 'Dubai')}**")
             
-            <div style="margin: 1.5rem 0;">
-                <div style="display: flex; justify-content: space-between; margin: 0.5rem 0;">
-                    <span>Iftar Preparation:</span>
-                    <span style="color: #8B5CF6; font-weight: bold;">6:00 PM - 7:30 PM</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin: 0.5rem 0;">
-                    <span>Taraweeh Prayers:</span>
-                    <span style="color: #8B5CF6; font-weight: bold;">8:30 PM - 10:00 PM</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin: 0.5rem 0;">
-                    <span>Family Gatherings:</span>
-                    <span style="color: #8B5CF6; font-weight: bold;">10:00 PM - 1:00 AM</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin: 0.5rem 0;">
-                    <span>Suhoor Preparation:</span>
-                    <span style="color: #8B5CF6; font-weight: bold;">3:30 AM - 4:30 AM</span>
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+            st.divider()
+            
+            col1a, col1b = st.columns(2)
+            with col1a:
+                st.write("**Iftar Preparation**")
+                st.write("**Taraweeh Prayers**")
+                st.write("**Family Gatherings**")
+                st.write("**Suhoor Preparation**")
+            with col1b:
+                st.write("6:00 PM - 7:30 PM")
+                st.write("8:30 PM - 10:00 PM")
+                st.write("10:00 PM - 1:00 AM")
+                st.write("3:30 AM - 4:30 AM")
     
     with col2:
         # Personalized Ramadan usage pattern
@@ -242,30 +139,29 @@ with tab1:
     # Personalized Ramadan savings
     ramadan_savings = st.session_state.user_profile['family_size'] * 45 + st.session_state.user_profile['ac_units'] * 25
     
-    st.markdown(f"""
-    <div class="uae-card ramadan">
-        <h3>💰 Your Ramadan Savings Potential</h3>
-        <div style="text-align: center; padding: 1.5rem;">
-            <div style="font-size: 3rem; font-weight: bold; color: #8B5CF6; margin-bottom: 0.5rem;">
-                AED {ramadan_savings}/month
-            </div>
-            <div style="opacity: 0.8;">
-                During Ramadan months for your {st.session_state.user_profile['family_size']}-person family
-            </div>
-        </div>
+    with st.container():
+        st.markdown("#### 💰 Your Ramadan Savings Potential")
         
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem;">
-            <div style="text-align: center;">
-                <div style="font-size: 1.2rem; font-weight: bold; color: #22C55E;">{35 + st.session_state.user_profile['ac_units'] * 3}%</div>
-                <div style="opacity: 0.8;">AC Optimization</div>
-            </div>
-            <div style="text-align: center;">
-                <div style="font-size: 1.2rem; font-weight: bold; color: #22C55E;">{25 + st.session_state.user_profile['family_size'] * 2}%</div>
-                <div style="opacity: 0.8;">Lighting Efficiency</div>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+        col3, col4 = st.columns(2)
+        
+        with col3:
+            st.metric(
+                "Monthly Savings During Ramadan", 
+                f"AED {ramadan_savings}",
+                "Personalized for your family"
+            )
+        
+        with col4:
+            st.metric(
+                "AC Optimization", 
+                f"{35 + st.session_state.user_profile['ac_units'] * 3}%",
+                "Ramadan-specific"
+            )
+            st.metric(
+                "Lighting Efficiency", 
+                f"{25 + st.session_state.user_profile['family_size'] * 2}%", 
+                "Night activity optimized"
+            )
     
     if st.session_state.uai_settings['ramadan_mode']:
         st.success("🌙 Ramadan Intelligence: ACTIVE - Your home will automatically adapt to Ramadan patterns")
@@ -280,25 +176,25 @@ with tab2:
     with col1:
         summer_savings = st.session_state.user_profile['ac_units'] * 55 + (100 if st.session_state.user_profile['home_type'] == 'Villa' else 0)
         
-        st.markdown(f"""
-        <div class="uae-card summer slide-in-right">
-            <h3>🔥 UAE Summer Optimization</h3>
-            <p>Personalized for your <strong>{st.session_state.user_profile['home_type']}</strong> with <strong>{st.session_state.user_profile['ac_units']} AC units</strong></p>
+        with st.container():
+            st.markdown("#### 🔥 UAE Summer Optimization")
+            st.write(f"Personalized for your **{st.session_state.user_profile['home_type']}** with **{st.session_state.user_profile['ac_units']} AC units**")
             
-            <div style="margin: 1.5rem 0;">
-                <div class="cultural-badge">Desert Heat Adaptation</div>
-                <div class="cultural-badge">Peak Temperature Management</div>
-                <div class="cultural-badge">AC Compressor Protection</div>
-                <div class="cultural-badge">Sandstorm Preparation</div>
-            </div>
+            st.divider()
             
-            <div style="background: rgba(245, 158, 11, 0.2); padding: 1rem; border-radius: 10px; margin-top: 1rem;">
-                <div style="color: #F59E0B; font-weight: bold; text-align: center;">
-                    🎯 Summer Savings Target: AED {summer_savings}/month
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+            # Summer features as badges
+            st.write("**Desert Heat Adaptation** 🌡️")
+            st.write("**Peak Temperature Management** ☀️")
+            st.write("**AC Compressor Protection** ❄️")
+            st.write("**Sandstorm Preparation** 🏜️")
+            
+            st.divider()
+            
+            st.metric(
+                "Summer Savings Target", 
+                f"AED {summer_savings}/month",
+                "AC-focused optimization"
+            )
     
     with col2:
         # Summer temperature and usage correlation
@@ -341,69 +237,49 @@ with tab2:
         summer_features.append(("Pool Optimization", "Reduce evaporation - Save AED 95"))
     
     for feature, savings in summer_features:
-        st.markdown(f"""
-        <div style="
-            background: rgba(245, 158, 11, 0.1);
-            border-left: 4px solid #F59E0B;
-            border-radius: 10px;
-            padding: 1rem;
-            margin: 0.5rem 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        ">
-            <div style="font-weight: bold;">{feature}</div>
-            <div style="color: #F59E0B; font-weight: bold;">{savings}</div>
-        </div>
-        """, unsafe_allow_html=True)
+        with st.container():
+            col1, col2 = st.columns([3, 1])
+            with col1:
+                st.write(f"**{feature}**")
+            with col2:
+                st.write(f"**{savings}**")
 
 with tab3:
     st.markdown("### 👨‍👩‍👧‍👦 Family Dynamics AI")
     
+    # Calculate family-specific savings
     family_scheduling = st.session_state.user_profile['family_size'] * 18
     room_optimization = len(st.session_state.user_profile['rooms']) * 15
     pattern_learning = st.session_state.user_profile['family_size'] * 12
     
-    st.markdown(f"""
-    <div class="uae-card family slide-in-right">
-        <h3>🏡 Understanding Your Family of {st.session_state.user_profile['family_size']}</h3>
-        <p>AI learning your unique family patterns in <strong>{st.session_state.user_profile.get('location', 'Dubai')}</strong></p>
+    with st.container():
+        st.markdown(f"#### 🏡 Understanding Your Family of {st.session_state.user_profile['family_size']}")
+        st.write(f"AI learning your unique family patterns in **{st.session_state.user_profile.get('location', 'Dubai')}**")
+    
+    # Family profile using Streamlit components
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("##### 👥 Your Family Profile")
         
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1.5rem;">
-            <div>
-                <h4>👥 Family Profile</h4>
-                <div style="display: flex; justify-content: space-between; margin: 0.5rem 0;">
-                    <span>Family Size:</span>
-                    <span style="font-weight: bold;">{st.session_state.user_profile['family_size']} people</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin: 0.5rem 0;">
-                    <span>Home Type:</span>
-                    <span style="font-weight: bold;">{st.session_state.user_profile['home_type']}</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin: 0.5rem 0;">
-                    <span>AC Units:</span>
-                    <span style="font-weight: bold;">{st.session_state.user_profile['ac_units']} units</span>
-                </div>
-            </div>
+        # Create a nice container for family info
+        with st.container():
+            st.metric("Family Size", f"{st.session_state.user_profile['family_size']} people")
+            st.metric("Home Type", st.session_state.user_profile['home_type'])
+            st.metric("AC Units", f"{st.session_state.user_profile['ac_units']} units")
+            st.metric("Rooms", f"{len(st.session_state.user_profile['rooms'])} rooms")
+    
+    with col2:
+        st.markdown("##### 💡 Family-Specific Savings")
+        
+        # Create savings container
+        with st.container():
+            st.metric("Family Scheduling", f"AED {family_scheduling}/mo")
+            st.metric("Room Optimization", f"AED {room_optimization}/mo") 
+            st.metric("Pattern Learning", f"AED {pattern_learning}/mo")
             
-            <div>
-                <h4>💡 Family-Specific Savings</h4>
-                <div style="display: flex; justify-content: space-between; margin: 0.5rem 0;">
-                    <span>Family Scheduling:</span>
-                    <span style="color: #22C55E; font-weight: bold;">AED {family_scheduling}/mo</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin: 0.5rem 0;">
-                    <span>Room Optimization:</span>
-                    <span style="color: #22C55E; font-weight: bold;">AED {room_optimization}/mo</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin: 0.5rem 0;">
-                    <span>Pattern Learning:</span>
-                    <span style="color: #22C55E; font-weight: bold;">AED {pattern_learning}/mo</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+            total_family_savings = family_scheduling + room_optimization + pattern_learning
+            st.metric("Total Family Savings", f"AED {total_family_savings}/mo", delta="Optimized")
     
     # Family daily pattern
     st.markdown("#### 📅 Your Family's Daily Rhythm")
@@ -444,29 +320,20 @@ with tab4:
     col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown("""
-        <div class="uae-card desert slide-in-right">
-            <h3>🌵 Desert-Optimized Systems</h3>
-            <p>Specialized for UAE's unique climate conditions</p>
+        with st.container():
+            st.markdown("#### 🌵 Desert-Optimized Systems")
+            st.write("Specialized for UAE's unique climate conditions")
             
-            <div style="margin: 1.5rem 0;">
-                <div style="background: rgba(239, 68, 68, 0.2); padding: 1rem; border-radius: 10px; margin: 0.5rem 0;">
-                    <div style="color: #EF4444; font-weight: bold;">🌡️ Extreme Heat Management</div>
-                    <div style="opacity: 0.8; font-size: 0.9rem;">AC optimization for 45°C+ temperatures</div>
-                </div>
-                
-                <div style="background: rgba(139, 92, 246, 0.2); padding: 1rem; border-radius: 10px; margin: 0.5rem 0;">
-                    <div style="color: #8B5CF6; font-weight: bold;">💧 Humidity Control</div>
-                    <div style="opacity: 0.8; font-size: 0.9rem;">Coastal area adaptation</div>
-                </div>
-                
-                <div style="background: rgba(245, 158, 11, 0.2); padding: 1rem; border-radius: 10px; margin: 0.5rem 0;">
-                    <div style="color: #F59E0B; font-weight: bold;">🏜️ Sand & Dust Protection</div>
-                    <div style="opacity: 0.8; font-size: 0.9rem;">Equipment maintenance optimization</div>
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+            st.divider()
+            
+            st.write("**🌡️ Extreme Heat Management**")
+            st.caption("AC optimization for 45°C+ temperatures")
+            
+            st.write("**💧 Humidity Control**")
+            st.caption("Coastal area adaptation")
+            
+            st.write("**🏜️ Sand & Dust Protection**")
+            st.caption("Equipment maintenance optimization")
     
     with col2:
         # Desert efficiency comparison
@@ -508,25 +375,16 @@ with tab4:
     st.markdown("#### 🎯 Your Desert Adaptation Plan")
     
     desert_optimizations = [
-        ("AC Desert Mode", f"Optimized for {st.session_state.user_profile['ac_units']} units in extreme heat"),
+        (f"AC Desert Mode for {st.session_state.user_profile['ac_units']} units", "Optimized for extreme heat"),
         ("Humidity Priority", "Remove moisture before cooling - More efficient"),
         ("Sandstorm Protocol", "Automatic system protection during storms"),
         ("Rapid Response", "Quick adaptation to temperature changes")
     ]
     
     for optimization, description in desert_optimizations:
-        st.markdown(f"""
-        <div style="
-            background: rgba(239, 68, 68, 0.1);
-            border-radius: 10px;
-            padding: 1rem;
-            margin: 0.5rem 0;
-            border-left: 4px solid #EF4444;
-        ">
-            <div style="font-weight: bold; color: #EF4444; margin-bottom: 0.5rem;">{optimization}</div>
-            <div style="opacity: 0.9;">{description}</div>
-        </div>
-        """, unsafe_allow_html=True)
+        with st.container():
+            st.write(f"**{optimization}**")
+            st.caption(description)
 
 # ACTIVATE ALL UAE INTELLIGENCE
 st.markdown("---")
