@@ -13,9 +13,13 @@ if 'user_profile' not in st.session_state:
         'home_type': 'Apartment',
         'ac_units': 2,
         'family_size': 4,
-        'location': 'Dubai',
-        'rooms': ['Living Room', 'Master Bedroom', 'Kitchen']
+        'rooms': ['Living Room', 'Master Bedroom', 'Kitchen'],
+        'appliances': ['AC', 'Refrigerator', 'Washing Machine']
     }
+
+# FIX: Add location if missing
+if 'location' not in st.session_state.user_profile:
+    st.session_state.user_profile['location'] = 'Dubai'
 
 if 'uai_settings' not in st.session_state:
     st.session_state.uai_settings = {
@@ -152,6 +156,15 @@ with st.sidebar:
             help="Optimize for UAE's desert climate conditions"
         )
         
+        # FIX: Add location selector
+        location = st.selectbox(
+            "Your Emirate",
+            ["Dubai", "Abu Dhabi", "Sharjah", "Ajman", "Ras Al Khaimah", "Fujairah", "Umm Al Quwain"],
+            index=["Dubai", "Abu Dhabi", "Sharjah", "Ajman", "Ras Al Khaimah", "Fujairah", "Umm Al Quwain"].index(
+                st.session_state.user_profile.get('location', 'Dubai')
+            )
+        )
+        
         if st.form_submit_button("💾 Save UAE Settings", use_container_width=True):
             st.session_state.uai_settings = {
                 'ramadan_mode': ramadan_mode,
@@ -159,6 +172,8 @@ with st.sidebar:
                 'family_patterns': family_patterns,
                 'desert_adaptation': desert_adaptation
             }
+            # FIX: Save location to user profile
+            st.session_state.user_profile['location'] = location
             st.success("✅ UAE settings saved!")
             st.rerun()
 
@@ -171,10 +186,10 @@ with tab1:
     col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown("""
+        st.markdown(f"""
         <div class="uae-card ramadan slide-in-right">
             <h3>🕌 Your Ramadan Patterns</h3>
-            <p>Based on your <strong>family of {family_size}</strong> in <strong>{location}</strong></p>
+            <p>Based on your <strong>family of {st.session_state.user_profile['family_size']}</strong> in <strong>{st.session_state.user_profile.get('location', 'Dubai')}</strong></p>
             <div class="pattern-bar"></div>
             
             <div style="margin: 1.5rem 0;">
@@ -196,10 +211,7 @@ with tab1:
                 </div>
             </div>
         </div>
-        """.format(
-            family_size=st.session_state.user_profile['family_size'],
-            location=st.session_state.user_profile['location']
-        ), unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
     
     with col2:
         # Personalized Ramadan usage pattern
@@ -230,35 +242,30 @@ with tab1:
     # Personalized Ramadan savings
     ramadan_savings = st.session_state.user_profile['family_size'] * 45 + st.session_state.user_profile['ac_units'] * 25
     
-    st.markdown("""
+    st.markdown(f"""
     <div class="uae-card ramadan">
         <h3>💰 Your Ramadan Savings Potential</h3>
         <div style="text-align: center; padding: 1.5rem;">
             <div style="font-size: 3rem; font-weight: bold; color: #8B5CF6; margin-bottom: 0.5rem;">
-                AED {savings}/month
+                AED {ramadan_savings}/month
             </div>
             <div style="opacity: 0.8;">
-                During Ramadan months for your {family_size}-person family
+                During Ramadan months for your {st.session_state.user_profile['family_size']}-person family
             </div>
         </div>
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem;">
             <div style="text-align: center;">
-                <div style="font-size: 1.2rem; font-weight: bold; color: #22C55E;">{ac_savings}%</div>
+                <div style="font-size: 1.2rem; font-weight: bold; color: #22C55E;">{35 + st.session_state.user_profile['ac_units'] * 3}%</div>
                 <div style="opacity: 0.8;">AC Optimization</div>
             </div>
             <div style="text-align: center;">
-                <div style="font-size: 1.2rem; font-weight: bold; color: #22C55E;">{lighting_savings}%</div>
+                <div style="font-size: 1.2rem; font-weight: bold; color: #22C55E;">{25 + st.session_state.user_profile['family_size'] * 2}%</div>
                 <div style="opacity: 0.8;">Lighting Efficiency</div>
             </div>
         </div>
     </div>
-    """.format(
-        savings=ramadan_savings,
-        family_size=st.session_state.user_profile['family_size'],
-        ac_savings=35 + st.session_state.user_profile['ac_units'] * 3,
-        lighting_savings=25 + st.session_state.user_profile['family_size'] * 2
-    ), unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
     
     if st.session_state.uai_settings['ramadan_mode']:
         st.success("🌙 Ramadan Intelligence: ACTIVE - Your home will automatically adapt to Ramadan patterns")
@@ -271,10 +278,12 @@ with tab2:
     col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown("""
+        summer_savings = st.session_state.user_profile['ac_units'] * 55 + (100 if st.session_state.user_profile['home_type'] == 'Villa' else 0)
+        
+        st.markdown(f"""
         <div class="uae-card summer slide-in-right">
             <h3>🔥 UAE Summer Optimization</h3>
-            <p>Personalized for your <strong>{home_type}</strong> with <strong>{ac_units} AC units</strong></p>
+            <p>Personalized for your <strong>{st.session_state.user_profile['home_type']}</strong> with <strong>{st.session_state.user_profile['ac_units']} AC units</strong></p>
             
             <div style="margin: 1.5rem 0;">
                 <div class="cultural-badge">Desert Heat Adaptation</div>
@@ -285,15 +294,11 @@ with tab2:
             
             <div style="background: rgba(245, 158, 11, 0.2); padding: 1rem; border-radius: 10px; margin-top: 1rem;">
                 <div style="color: #F59E0B; font-weight: bold; text-align: center;">
-                    🎯 Summer Savings Target: AED {savings}/month
+                    🎯 Summer Savings Target: AED {summer_savings}/month
                 </div>
             </div>
         </div>
-        """.format(
-            home_type=st.session_state.user_profile['home_type'],
-            ac_units=st.session_state.user_profile['ac_units'],
-            savings=st.session_state.user_profile['ac_units'] * 55 + (100 if st.session_state.user_profile['home_type'] == 'Villa' else 0)
-        ), unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
     
     with col2:
         # Summer temperature and usage correlation
@@ -355,25 +360,29 @@ with tab2:
 with tab3:
     st.markdown("### 👨‍👩‍👧‍👦 Family Dynamics AI")
     
-    st.markdown("""
+    family_scheduling = st.session_state.user_profile['family_size'] * 18
+    room_optimization = len(st.session_state.user_profile['rooms']) * 15
+    pattern_learning = st.session_state.user_profile['family_size'] * 12
+    
+    st.markdown(f"""
     <div class="uae-card family slide-in-right">
-        <h3>🏡 Understanding Your Family of {family_size}</h3>
-        <p>AI learning your unique family patterns in <strong>{location}</strong></p>
+        <h3>🏡 Understanding Your Family of {st.session_state.user_profile['family_size']}</h3>
+        <p>AI learning your unique family patterns in <strong>{st.session_state.user_profile.get('location', 'Dubai')}</strong></p>
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1.5rem;">
             <div>
                 <h4>👥 Family Profile</h4>
                 <div style="display: flex; justify-content: space-between; margin: 0.5rem 0;">
                     <span>Family Size:</span>
-                    <span style="font-weight: bold;">{family_size} people</span>
+                    <span style="font-weight: bold;">{st.session_state.user_profile['family_size']} people</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin: 0.5rem 0;">
                     <span>Home Type:</span>
-                    <span style="font-weight: bold;">{home_type}</span>
+                    <span style="font-weight: bold;">{st.session_state.user_profile['home_type']}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin: 0.5rem 0;">
                     <span>AC Units:</span>
-                    <span style="font-weight: bold;">{ac_units} units</span>
+                    <span style="font-weight: bold;">{st.session_state.user_profile['ac_units']} units</span>
                 </div>
             </div>
             
@@ -394,15 +403,7 @@ with tab3:
             </div>
         </div>
     </div>
-    """.format(
-        family_size=st.session_state.user_profile['family_size'],
-        location=st.session_state.user_profile['location'],
-        home_type=st.session_state.user_profile['home_type'],
-        ac_units=st.session_state.user_profile['ac_units'],
-        family_scheduling=st.session_state.user_profile['family_size'] * 18,
-        room_optimization=len(st.session_state.user_profile['rooms']) * 15,
-        pattern_learning=st.session_state.user_profile['family_size'] * 12
-    ), unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
     
     # Family daily pattern
     st.markdown("#### 📅 Your Family's Daily Rhythm")
