@@ -6,7 +6,7 @@ from datetime import datetime
 
 st.set_page_config(page_title="Live Orchestrator", layout="wide")
 
-# Check if user has set up their profile
+# Initialize session state if not exists
 if 'user_profile' not in st.session_state:
     st.session_state.user_profile = {
         'home_type': 'Apartment',
@@ -14,6 +14,13 @@ if 'user_profile' not in st.session_state:
         'family_size': 4,
         'rooms': ['Living Room', 'Master Bedroom', 'Kitchen'],
         'appliances': ['AC', 'Refrigerator', 'Washing Machine']
+    }
+
+if 'orchestrator_settings' not in st.session_state:  # FIXED: Changed key name
+    st.session_state.orchestrator_settings = {
+        'priority': 'Balance Savings & Comfort',
+        'schedule': 'Family Day',
+        'features': ['Peak Avoidance', 'Standby Reduction']
     }
 
 # ANIMATED CSS FOR ORCHESTRATOR
@@ -63,18 +70,6 @@ st.markdown("""
     
     .pulse-animation {
         animation: pulse 2s infinite;
-    }
-    
-    .progress-ring {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background: conic-gradient(#22C55E var(--progress), rgba(255,255,255,0.1) 0deg);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        color: white;
     }
     
     .live-pulse {
@@ -156,13 +151,19 @@ with col2:
         priority = st.selectbox(
             "Optimization Priority",
             ["Maximum Savings", "Balance Savings & Comfort", "Maximum Comfort"],
-            help="Choose your preference for the AI optimization"
+            help="Choose your preference for the AI optimization",
+            index=["Maximum Savings", "Balance Savings & Comfort", "Maximum Comfort"].index(
+                st.session_state.orchestrator_settings['priority']
+            )
         )
         
         schedule_type = st.selectbox(
             "Daily Schedule",
             ["Family Day", "Work From Home", "Weekend", "Ramadan", "Summer"],
-            help="Select your typical daily pattern"
+            help="Select your typical daily pattern",
+            index=["Family Day", "Work From Home", "Weekend", "Ramadan", "Summer"].index(
+                st.session_state.orchestrator_settings['schedule']
+            )
         )
         
         # Smart features based on user's home
@@ -179,17 +180,19 @@ with col2:
         enabled_features = st.multiselect(
             "Smart Features",
             smart_features,
-            default=smart_features,
+            default=st.session_state.orchestrator_settings['features'],
             help="Select which AI features to enable"
         )
         
         if st.form_submit_button("💾 Save Settings", use_container_width=True):
-            st.session_state.orchestration_settings = {
+            # FIXED: Use the correct session state key
+            st.session_state.orchestrator_settings = {
                 'priority': priority,
                 'schedule': schedule_type,
                 'features': enabled_features
             }
             st.success("✅ Settings saved!")
+            st.rerun()
 
 # LIVE ORCHESTRATION DEMO
 st.markdown("---")
@@ -361,7 +364,7 @@ with quick_col3:
     if st.button("📊 Generate Report", use_container_width=True):
         st.info("📋 Generating personalized optimization report...")
         time.sleep(2)
-        st.success(f"✅ Report generated for your {st.session_state.user_profile['home_type']} in {st.session_state.user_profile['location']}!")
+        st.success(f"✅ Report generated for your {st.session_state.user_profile['home_type']}!")
 
 # PERSONALIZED INSIGHTS
 st.markdown("---")
