@@ -1,8 +1,9 @@
 import streamlit as st
-import plotly.express as px
 import plotly.graph_objects as go
+import plotly.express as px
 import pandas as pd
 import numpy as np
+import random
 from datetime import datetime, timedelta
 
 st.set_page_config(page_title="Bill Shield", layout="wide")
@@ -25,6 +26,64 @@ if 'usage_patterns' not in st.session_state:
         'appliances': 12,
         'pool_pump': 8
     }
+
+# Enhanced CSS for Bill Shield
+st.markdown("""
+<style>
+    .shield-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin: 0.5rem 0;
+        transition: all 0.3s ease;
+    }
+    
+    .shield-card:hover {
+        transform: translateY(-3px);
+        background: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .emergency-shield {
+        background: linear-gradient(45deg, #EF4444, #DC2626);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 15px;
+        padding: 1.5rem;
+        color: white;
+        text-align: center;
+    }
+    
+    .success-shield {
+        background: linear-gradient(45deg, #22C55E, #16A34A);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 15px;
+        padding: 1.5rem;
+        color: white;
+        text-align: center;
+    }
+    
+    .warning-shield {
+        background: linear-gradient(45deg, #F59E0B, #D97706);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 15px;
+        padding: 1.5rem;
+        color: white;
+        text-align: center;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    .pulse-alert {
+        animation: pulse 2s infinite;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 st.title("🛡️ BILL SHIELD")
 st.markdown("### AI-Powered Bill Protection & Savings Optimizer")
@@ -136,8 +195,9 @@ with tab1:
         }
         
         for category, cost in cost_categories.items():
-            st.progress(int(cost / st.session_state.bill_data['current_bill'] * 100), 
-                       text=f"{category}: AED {cost:.0f}")
+            progress_value = int(cost / st.session_state.bill_data['current_bill'] * 100)
+            st.write(f"**{category}**")
+            st.progress(progress_value, text=f"AED {cost:.0f}")
 
 with tab2:
     st.markdown("#### 🔍 Deep Usage Insights")
@@ -150,7 +210,7 @@ with tab2:
     typical_usage = [20, 18, 16, 15, 14, 16, 25, 45, 60, 55, 50, 48,
                     52, 58, 62, 65, 70, 75, 80, 65, 50, 40, 30, 22]
     
-    your_usage = [usage * (1 + random.uniform(-0.2, 0.2)) for usage in typical_usage]
+    your_usage = [usage * (1 + random.uniform(-0.1, 0.1)) for usage in typical_usage]
     
     fig_hourly = go.Figure()
     
@@ -196,24 +256,41 @@ with tab2:
     
     with alert_col1:
         with st.container():
+            st.markdown('<div class="warning-shield">', unsafe_allow_html=True)
             st.error("**Peak Hour Usage**")
             st.write(f"{st.session_state.bill_data['peak_hours_usage']}% of your usage during premium rates")
-            st.button("Optimize", key="peak_opt", use_container_width=True)
+            if st.button("Optimize Now", key="peak_opt", use_container_width=True):
+                st.session_state.bill_data['peak_hours_usage'] = max(20, st.session_state.bill_data['peak_hours_usage'] - 15)
+                st.success("Peak usage optimized! Reduced by 15%")
+            st.markdown('</div>', unsafe_allow_html=True)
     
     with alert_col2:
         with st.container():
+            st.markdown('<div class="warning-shield">', unsafe_allow_html=True)
             st.warning("**AC Overuse**")
             st.write("65% of bill from AC - Consider temperature optimization")
-            st.button("Adjust", key="ac_opt", use_container_width=True)
+            if st.button("Adjust AC", key="ac_opt", use_container_width=True):
+                st.session_state.bill_data['current_bill'] = max(600, st.session_state.bill_data['current_bill'] - 45)
+                st.success("AC optimized! Saved AED 45/month")
+            st.markdown('</div>', unsafe_allow_html=True)
     
     with alert_col3:
         with st.container():
+            st.markdown('<div class="warning-shield">', unsafe_allow_html=True)
             st.info("**Weekend Spike**")
             st.write("45% higher usage on weekends vs weekdays")
-            st.button("Schedule", key="weekend_opt", use_container_width=True)
+            if st.button("Smart Schedule", key="weekend_opt", use_container_width=True):
+                st.success("Weekend schedule optimized!")
+            st.markdown('</div>', unsafe_allow_html=True)
 
 with tab3:
     st.markdown("#### 🎯 Personalized Savings Opportunities")
+    
+    # Get user profile for personalized recommendations
+    user_profile = st.session_state.get('user_profile', {})
+    home_type = user_profile.get('home_type', 'Apartment')
+    ac_units = user_profile.get('ac_units', 2)
+    family_size = user_profile.get('family_size', 4)
     
     # Savings recommendations based on user profile
     savings_opportunities = [
@@ -227,29 +304,52 @@ with tab3:
         },
         {
             "title": "AC Temperature Optimization",
-            "description": "Increase default temperature by 2°C during off-hours",
-            "savings": 85,
+            "description": f"Increase default temperature by 2°C for your {ac_units} AC units",
+            "savings": ac_units * 25,
             "effort": "Low", 
             "implementation": "Smart Thermostat",
-            "impact": "Medium"
+            "impact": "High"
         },
         {
-            "title": "Pool Pump Schedule",
+            "title": "Family Usage Coordination",
+            "description": f"Optimize schedules for your {family_size}-person family",
+            "savings": family_size * 15,
+            "effort": "Medium",
+            "implementation": "Family Planning",
+            "impact": "Medium"
+        }
+    ]
+    
+    # Add home-type specific recommendations
+    if home_type == 'Villa':
+        savings_opportunities.append({
+            "title": "Pool Pump Optimization",
             "description": "Reduce pool pump runtime by 3 hours daily",
-            "savings": 65,
+            "savings": 95,
             "effort": "Medium",
             "implementation": "Timer Setup",
             "impact": "Medium"
-        },
+        })
+    
+    # Add general recommendations
+    savings_opportunities.extend([
         {
             "title": "LED Lighting Upgrade",
-            "description": "Replace 15 remaining halogen bulbs with LEDs",
+            "description": "Replace remaining halogen bulbs with LEDs",
             "savings": 45,
             "effort": "Medium",
             "implementation": "One-time Purchase",
             "impact": "Low"
+        },
+        {
+            "title": "Standby Power Reduction",
+            "description": "Eliminate ghost energy from idle devices",
+            "savings": 35,
+            "effort": "Low",
+            "implementation": "Smart Plugs",
+            "impact": "Low"
         }
-    ]
+    ])
     
     for i, opportunity in enumerate(savings_opportunities):
         with st.expander(f"💡 {opportunity['title']} - Potential: AED {opportunity['savings']}/month", expanded=i==0):
@@ -267,7 +367,11 @@ with tab3:
                 st.write(f"{effort_color} {opportunity['effort']} Effort")
                 
                 if st.button("Apply", key=f"apply_{i}", use_container_width=True):
+                    # Apply savings
+                    st.session_state.bill_data['current_bill'] = max(400, st.session_state.bill_data['current_bill'] - opportunity['savings'])
+                    st.session_state.bill_data['savings_achieved'] += opportunity['savings']
                     st.success(f"✅ {opportunity['title']} applied! Estimated savings: AED {opportunity['savings']}/month")
+                    st.rerun()
     
     # Total savings potential
     total_potential = sum(opp['savings'] for opp in savings_opportunities)
@@ -280,6 +384,13 @@ with tab3:
     
     st.markdown("##### 🎯 Savings Goal Progress")
     st.progress(int(progress), text=f"AED {current_savings} of AED {target_savings} monthly target")
+    
+    if progress >= 100:
+        st.markdown('<div class="success-shield">🎉 Congratulations! You achieved your savings target!</div>', unsafe_allow_html=True)
+    elif progress >= 75:
+        st.markdown('<div class="warning-shield">📈 Great progress! Almost at your target.</div>', unsafe_allow_html=True)
+    else:
+        st.markdown('<div class="emergency-shield">📊 Keep going! More savings opportunities available.</div>', unsafe_allow_html=True)
 
 with tab4:
     st.markdown("#### 🛡️ Bill Protection Plan")
@@ -290,16 +401,30 @@ with tab4:
         st.markdown("##### 🎪 Current Protection Status")
         
         protection_features = [
-            {"feature": "Peak Hour Alerts", "status": "Active", "icon": "🔔"},
-            {"feature": "Usage Forecasting", "status": "Active", "icon": "🔮"},
-            {"feature": "Auto-Optimization", "status": "Inactive", "icon": "⚡"},
-            {"feature": "Budget Protection", "status": "Active", "icon": "💰"},
-            {"feature": "Emergency Shutdown", "status": "Inactive", "icon": "🛑"}
+            {"feature": "Peak Hour Alerts", "status": "Active", "icon": "🔔", "level": "Basic"},
+            {"feature": "Usage Forecasting", "status": "Active", "icon": "🔮", "level": "Basic"},
+            {"feature": "Auto-Optimization", "status": "Inactive", "icon": "⚡", "level": "Pro"},
+            {"feature": "Budget Protection", "status": "Active", "icon": "💰", "level": "Basic"},
+            {"feature": "Emergency Shutdown", "status": "Inactive", "icon": "🛑", "level": "Pro"}
         ]
         
         for pf in protection_features:
             status_color = "🟢" if pf['status'] == "Active" else "🔴"
-            st.write(f"{pf['icon']} **{pf['feature']}** - {status_color} {pf['status']}")
+            level_color = "#22C55E" if pf['level'] == "Basic" else "#F59E0B"
+            st.markdown(f"""
+            <div class="shield-card">
+                <div style="display: flex; justify-content: between; align-items: center;">
+                    <div style="font-size: 1.5rem;">{pf['icon']}</div>
+                    <div style="flex: 1; margin-left: 1rem;">
+                        <div style="font-weight: bold;">{pf['feature']}</div>
+                        <div style="color: {level_color}; font-size: 0.8rem;">{pf['level']} Plan</div>
+                    </div>
+                    <div style="color: {'#22C55E' if pf['status'] == 'Active' else '#EF4444'}">
+                        {status_color} {pf['status']}
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
     
     with col2:
         st.markdown("##### 🚀 Upgrade Your Protection")
@@ -309,35 +434,43 @@ with tab4:
                 "name": "Basic Shield",
                 "price": 0,
                 "features": ["Peak Alerts", "Basic Analytics", "Monthly Reports"],
-                "current": True
+                "current": True,
+                "color": "#22C55E"
             },
             {
                 "name": "Pro Shield", 
                 "price": 49,
                 "features": ["Auto-Optimization", "Real-time Control", "Priority Support", "Advanced AI"],
-                "current": False
+                "current": False,
+                "color": "#F59E0B"
             },
             {
                 "name": "Enterprise Shield",
                 "price": 99,
                 "features": ["All Pro Features", "Custom Integrations", "Dedicated Manager", "API Access"],
-                "current": False
+                "current": False,
+                "color": "#EF4444"
             }
         ]
         
         for plan in protection_plans:
-            with st.container():
-                st.subheader(plan['name'])
-                st.write(f"AED {plan['price']}/month")
-                
-                for feature in plan['features']:
-                    st.write(f"✅ {feature}")
-                
-                if plan['current']:
-                    st.success("Current Plan")
-                else:
-                    if st.button(f"Upgrade to {plan['name']}", key=plan['name'], use_container_width=True):
-                        st.success(f"🎉 {plan['name']} activated! Enhanced protection enabled.")
+            st.markdown(f"""
+            <div class="shield-card" style="border-left: 4px solid {plan['color']};">
+                <h3>{plan['name']}</h3>
+                <div style="font-size: 1.5rem; font-weight: bold; color: {plan['color']};">
+                    AED {plan['price']}/month
+                </div>
+            """, unsafe_allow_html=True)
+            
+            for feature in plan['features']:
+                st.write(f"✅ {feature}")
+            
+            if plan['current']:
+                st.success("**Current Plan**")
+            else:
+                if st.button(f"Upgrade to {plan['name']}", key=plan['name'], use_container_width=True):
+                    st.success(f"🎉 {plan['name']} activated! Enhanced protection enabled.")
+            st.markdown('</div>', unsafe_allow_html=True)
     
     # Emergency controls
     st.markdown("---")
@@ -347,16 +480,18 @@ with tab4:
     
     with emergency_col1:
         if st.button("🔄 Enable Power Saving Mode", use_container_width=True, type="secondary"):
-            st.session_state.bill_data['current_bill'] *= 0.8  # Simulate 20% reduction
+            st.session_state.bill_data['current_bill'] = max(400, st.session_state.bill_data['current_bill'] * 0.8)
+            st.session_state.bill_data['savings_achieved'] += st.session_state.bill_data['current_bill'] * 0.2
+            st.success("🔋 Power Saving Mode Activated! 20% reduction applied.")
             st.rerun()
     
     with emergency_col2:
         if st.button("⏰ Schedule AC Break", use_container_width=True, type="secondary"):
-            st.info("AC will pause for 2 hours during peak times")
+            st.info("❄️ AC will pause for 2 hours during peak times - Estimated savings: AED 35/month")
     
     with emergency_col3:
         if st.button("📱 Contact Energy Coach", use_container_width=True, type="primary"):
-            st.success("Energy coach will contact you within 24 hours!")
+            st.success("👨‍💼 Energy coach will contact you within 24 hours for personalized advice!")
 
 # BILL FORECASTING
 st.markdown("---")
@@ -417,18 +552,19 @@ action_col1, action_col2, action_col3, action_col4 = st.columns(4)
 
 with action_col1:
     if st.button("📊 Update Bill Data", use_container_width=True):
-        st.success("Bill data synchronized with DEWA")
+        st.success("✅ Bill data synchronized with DEWA")
 
 with action_col2:
     if st.button("🎯 Apply All Recommendations", use_container_width=True):
         total_savings = sum(opp['savings'] for opp in savings_opportunities)
-        st.session_state.bill_data['current_bill'] -= total_savings
+        st.session_state.bill_data['current_bill'] = max(400, st.session_state.bill_data['current_bill'] - total_savings)
         st.session_state.bill_data['savings_achieved'] += total_savings
+        st.success(f"✅ All recommendations applied! Total savings: AED {total_savings}/month")
         st.rerun()
 
 with action_col3:
     if st.button("📧 Export Report", use_container_width=True):
-        st.success("Comprehensive bill report exported to PDF")
+        st.success("📋 Comprehensive bill report exported to PDF")
 
 with action_col4:
     if st.button("🔄 Reset to Default", use_container_width=True):
@@ -440,4 +576,15 @@ with action_col4:
             'peak_hours_usage': 45,
             'target_savings': 150
         }
+        st.success("🔄 Bill data reset to default values")
         st.rerun()
+
+# BILL SHIELD STATUS
+st.markdown("---")
+current_bill = st.session_state.bill_data['current_bill']
+budget = st.session_state.bill_data['budget']
+
+if current_bill <= budget:
+    st.markdown('<div class="success-shield pulse-alert">🛡️ BILL SHIELD ACTIVE - You are within budget! 🎉</div>', unsafe_allow_html=True)
+else:
+    st.markdown('<div class="emergency-shield pulse-alert">🚨 BILL SHIELD ALERT - You are over budget! Take action.</div>', unsafe_allow_html=True)
