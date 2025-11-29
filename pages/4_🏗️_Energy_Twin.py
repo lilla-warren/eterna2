@@ -115,7 +115,7 @@ if st.session_state.digital_twin_data['simulation_active']:
     # Simulate energy flow between rooms
     simulation_placeholder = st.empty()
     
-    for step in range(50):
+    for step in range(10):  # Reduced steps for better performance
         with simulation_placeholder.container():
             # Update room energies with some variation
             current_energies = []
@@ -133,7 +133,7 @@ if st.session_state.digital_twin_data['simulation_active']:
                 y=[current_energies[i] / 20 for i in range(len(room_data))],
                 mode='markers+text',
                 marker=dict(
-                    size=current_energies,
+                    size=[min(60, max(20, energy / 10)) for energy in current_energies],
                     color=current_energies,
                     colorscale='Viridis',
                     showscale=True
@@ -164,11 +164,11 @@ if st.session_state.digital_twin_data['simulation_active']:
             )
             
             st.plotly_chart(fig_flow, use_container_width=True)
-            st.caption(f"Simulation Step {step + 1}/50 - Watching energy move through your {home_type}")
+            st.caption(f"Simulation Step {step + 1}/10 - Watching energy move through your {home_type}")
         
         # Small delay for animation effect
         import time
-        time.sleep(0.2)
+        time.sleep(0.5)
     
     st.success("✅ Simulation complete! Energy flow patterns analyzed.")
 
@@ -361,8 +361,8 @@ for i, rec in enumerate(recommendations[:4]):  # Show top 4
             st.metric("Savings", f"AED {rec['savings']}/mo")
         
         with col3:
-            priority_color = "#EF4444" if rec['priority'] == "High" else "#F59E0B" if rec['priority'] == "Medium" else "#22C55E"
-            st.write(f"**{rec['priority']}**", help="Implementation priority")
+            priority_color = "🔴" if rec['priority'] == "High" else "🟡" if rec['priority'] == "Medium" else "🟢"
+            st.write(f"{priority_color} **{rec['priority']} Priority**")
 
 # 3D HOME VISUALIZATION
 st.markdown("---")
